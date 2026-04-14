@@ -146,9 +146,12 @@ float INA238::getPower()
 //  PAGE 24  CHECK
 float INA238::getTemperature()
 {
-  uint32_t value = _readRegister(INA238_TEMPERATURE, 2);
-  // INA238 uses 16 bits for temperature with 7.8125 m°C/LSB
-  return (float)value * 7.8125 / 1000.0;
+  //  INA238 uses two complements, so place 2 bytes in int16_t
+  int16_t value = (int16_t) _readRegister(INA238_TEMPERATURE, 2);
+  // shift 4 right as INA238 uses only bits 15-4
+  value >>= 4;
+  float LSB = 125e-3;   //  125 m°C/LSB
+  return (float)value * LSB;
 }
 
 
